@@ -1,0 +1,26 @@
+{
+    "name": "versgui/smtpcom-mailer",
+    "description": "Symfony Smtp.com Mailer Bridge",
+    "type": "symfony-mailer-bridge",
+    "require": {
+        "php": ">=7.2.5",
+        "symfony/mailer": "^5.2.6|^6.0",
+        "psr/event-dispatcher": "^1"
+    },
+    "require-dev": {
+        "ext-json": "*",
+        "symfony/http-client": "^4.4|^5.0|^6.0",
+        "phpunit/phpunit": "10.0.x-dev"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Versgui\\SmtpcomMailer\\": "src/",
+            "Test\\": "test/"
+        },
+        "exclude-from-classmap": [
+            "**/Tests/"
+        ]
+    },
+    "minimum-stability": "dev"
+}
