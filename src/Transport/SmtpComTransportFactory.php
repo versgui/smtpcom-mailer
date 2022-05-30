@@ -2,6 +2,7 @@
 
 namespace Versgui\SmtpcomMailer\Transport;
 
+use Symfony\Component\Mailer\Exception\InvalidArgumentException;
 use Symfony\Component\Mailer\Exception\UnsupportedSchemeException;
 use Symfony\Component\Mailer\Transport\AbstractTransportFactory;
 use Symfony\Component\Mailer\Transport\Dsn;
@@ -17,33 +18,33 @@ class SmtpComTransportFactory extends AbstractTransportFactory
         $transport = null;
         $scheme = $dsn->getScheme();
         $user = $this->getUser($dsn);
+        $password = $this->getPassword($dsn);
 
         if ('smtpcom+api' === $scheme) {
-            $host = 'default' === $dsn->getHost() ? null : $dsn->getHost();
-            $port = $dsn->getPort();
+            $channel = $dsn->getOption('channel');
 
-            $transport = (new SmtpComApiTransport($user, $this->client, $this->dispatcher, $this->logger))->setHost($host)->setPort($port);
-        }
-
-        if ('smtpcom+smtp' === $scheme || 'smtpcom+smtps' === $scheme || 'smtpcom' === $scheme) {
-            $transport = new SmtpComkSmtpTransport($user, $this->dispatcher, $this->logger);
-        }
-
-        if (null !== $transport) {
-            $messageStream = $dsn->getOption('message_stream');
-
-            if (null !== $messageStream) {
-                $transport->setMessageStream($messageStream);
+            if (!$channel) {
+                throw new InvalidArgumentException('Channel option is missing');
             }
 
-            return $transport;
+            $transport = (new SmtpComApiTransport($user, $channel, $this->client, $this->dispatcher, $this->logger))
+                ->setHost('default' === $dsn->getHost() ? null : $dsn->getHost())
+                ->setPort($dsn->getPort());
         }
 
-        throw new UnsupportedSchemeException($dsn, 'smtpcom', $this->getSupportedSchemes());
+        if ('smtpcom+smtp' === $scheme || 'smtpcom' === $scheme) {
+            $transport = new SmtpComSmtpTransport($user, $password, $this->dispatcher, $this->logger);
+        }
+
+        if (!$transport) {
+            throw new UnsupportedSchemeException($dsn, 'smtpcom', $this->getSupportedSchemes());
+        }
+
+        return $transport;
     }
 
     protected function getSupportedSchemes(): array
     {
-        return ['smtpcom', 'smtpcom+api', 'smtpcom+smtp', 'smtpcom+smtps'];
+        return ['smtpcom', 'smtpcom+api', 'smtpcom+smtp'];
     }
 }

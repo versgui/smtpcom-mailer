@@ -11,6 +11,9 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 use Versgui\SmtpcomMailer\Transport\SmtpComApiTransport;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @author Guillaume Verstraete
+ */
 class SmtpComApiTransportTest extends TestCase
 {
     /**
